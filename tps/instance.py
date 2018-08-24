@@ -6,8 +6,7 @@ __all__ = ['TPS']
 
 
 class TPS:
-    """
-    The thin plate spline deformation warpping
+    """The thin plate spline deformation warpping.
     """
 
     def __init__(self,
@@ -17,11 +16,18 @@ class TPS:
                  solver: str = 'exact'):
         """Create a instance that preserve the TPS coefficients.
 
-        Args:
-            control_points (numpy.array): p by d vector of control points.
-            target_points (numpy.array): p by d vector of corresponding control
-                points in the mapping function f(S).
-            lambda_ (float): regularization parameter. See page 4 in reference.
+        Arguments
+        ---------
+            control_points : numpy.array
+                p by d vector of control points
+            target_points : numpy.array
+                p by d vector of corresponding target points on the deformed
+                surface
+            lambda_ : float
+                regularization parameter
+            solver : str
+                the solver to get the coefficients. default is 'exact' for the
+                exact solution. Or use 'lstsq' for the least square solution.
         """
         self.control_points = control_points
         self.coefficient = functions.find_coefficients(
@@ -31,10 +37,10 @@ class TPS:
         """Transform the source points form the original surface to the
         destination (deformed) surface.
 
-        Args:
-            source_points (numpy.array): n by 3 array of X, Y, Z components of
-                the surface.
-            this funcaiton i
+        Arguments
+        ---------
+            source_points : numpy.array
+                n by d array of source points to be transformed
         """
         return functions.transform(source_points, self.control_points,
                                    self.coefficient)

@@ -6,9 +6,10 @@ __all__ = ['find_coefficients', 'transform']
 def cdist(K: numpy.ndarray, B: numpy.ndarray) -> numpy.ndarray:
     """Calculate Euclidean distance between K[i, :] and B[j, :].
 
-    Args:
-        K (numpy.array): ~
-        B (numpy.array): ~
+    Arguments
+    ---------
+        K : numpy.array
+        B : numpy.array
     """
     K = numpy.atleast_2d(K)
     B = numpy.atleast_2d(B)
@@ -25,20 +26,20 @@ def pairwise_radial_basis(K: numpy.ndarray, B: numpy.ndarray) -> numpy.ndarray:
     """Compute the TPS radial basis function phi(r) between every row-pair of K
     and B where r is the Euclidean distance.
 
-    Args:
-        K: n by d vector containing n d-dimensional points.
-        B: m by d vector containing m d-dimensional points.
+    Arguments
+    ---------
+        K : numpy.array
+            n by d vector containing n d-dimensional points.
+        B : numpy.array
+            m by d vector containing m d-dimensional points.
 
-    Return:
-        ```math
-        P - P(i, j) = phi(norm(K(i,:)-B(j,:)))
-                where phi(r) = r^2*log(r) for r >= 1
-                               r*log(r^r) for r <  1
-        ```
-
-    References:
-        1. https://en.wikipedia.org/wiki/Polyharmonic_spline
-        2. https://en.wikipedia.org/wiki/Radial_basis_function
+    Return
+    ------
+        P : numpy.array
+            n by m matrix where.
+            P(i, j) = phi( norm( K(i,:) - B(j,:) ) ),
+            where phi(r) = r^2*log(r), if r >= 1
+                           r*log(r^r), if r <  1
     """
     # r_mat(i, j) is the Euclidean distance between K(i, :) and B(j, :).
     r_mat = cdist(K, B)
@@ -60,21 +61,29 @@ def find_coefficients(control_points: numpy.ndarray,
                       target_points: numpy.ndarray,
                       lambda_: float = 0.,
                       solver: str = 'exact') -> numpy.ndarray:
-    """Given a set of control points and their displacements, compute the
-    coefficients of the TPS interpolant f(S) deforming surface S.
+    """Given a set of control points and their corresponding points, compute the
+    coefficients of the TPS interpolant deforming surface.
 
-    Args:
-        control_points (numpy.array): p by d vector of control points.
-        target_points (numpy.array): p by d vector of corresponding control
-            points in the mapping function f(S).
-        lambda_ (float): regularization parameter. See page 4 in reference.
-        solver: (str): the solver to the coefficients. default is 'exact' for
-            the exact solution. Or use 'lstsq' for the least square solution.
+    Arguments
+    ---------
+        control_points : numpy.array
+            p by d vector of control points
+        target_points : numpy.array
+            p by d vector of corresponding target points on the deformed
+            surface
+        lambda_ : float
+            regularization parameter
+        solver : str
+            the solver to get the coefficients. default is 'exact' for the exact
+            solution. Or use 'lstsq' for the least square solution.
 
-    Return:
-        (numpy.ndarray) the coefficients
+    Return
+    ------
+        coef : numpy.ndarray
+            the coefficients
 
-    References:
+    .. seealso::
+
         http://cseweb.ucsd.edu/~sjb/pami_tps.pdf
     """
     # ensure data type and shape
@@ -117,19 +126,22 @@ def find_coefficients(control_points: numpy.ndarray,
 
 def transform(source_points: numpy.ndarray, control_points: numpy.ndarray,
               coefficient: numpy.ndarray) -> numpy.ndarray:
-    """Given a set of control points and mapping coefficients, compute a
-    deformed surface f(S) using a thin plate spline radial basis function
-    phi(r).
+    """Transform the source points form the original surface to the destination
+    (deformed) surface.
 
-    Args:
-        source_points (numpy.array): n by 3 array of X, Y, Z components of
-            the surface.
-        control_points (numpy.array): the control points used in the function
-            `find_coefficients`.
-        coefficient (numpy.array): the computed coefficients.
+    Arguments
+    ---------
+        source_points : numpy.array
+            n by d array of source points to be transformed
+        control_points : numpy.array
+            the control points used in the function `find_coefficients`
+        coefficient : numpy.array
+            the computed coefficients
 
-    Return:
-        n by 3 vectors of X, Y, Z components of the deformed surface.
+    Return
+    ------
+        deformed_points : numpy.array
+            n by d array of the transformed point on the target surface
     """
     source_points = numpy.atleast_2d(source_points)
     control_points = numpy.atleast_2d(control_points)
